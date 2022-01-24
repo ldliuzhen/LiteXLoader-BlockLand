@@ -34,12 +34,16 @@ function onEnable(){
 		new JsonConfigFile(path+'Record.json');//创建领地石日志记录文件
 		new JsonConfigFile(path+'LandShare.json');//创建领地石分享记录文件
 		ConfigFile = path+'Config.json';
+		ConfigData = data.parseJson(ConfigData);
 		LandFile = path+'Land.json';
 		RecordFile = path+'Record.json';
 		LandShareFile = path+'LandShare.json';
 		LandDataNotEmpty = false;
 		RecordDataNotEmpty = false;
 		LandShareDataNotEmpty = false;
+		LandData = {};
+		RecordData = {};
+		LandShareData = {};
 	}else{
 		ConfigData = File.readFrom(path+'Config.json');
 		ConfigData = data.parseJson(ConfigData);
@@ -51,6 +55,7 @@ function onEnable(){
 		}else{
 			LandDataNotEmpty = false;
 			LandFile = path+'Land.json';
+			LandData = {};
 		}
 		if(File.getFileSize(path+'Record.json') > 2){
 			RecordFile = path+'Record.json';
@@ -60,6 +65,7 @@ function onEnable(){
 		}else{
 			RecordDataNotEmpty = false;
 			RecordFile = path+'Record.json';
+			RecordData = {};
 		}
 		if(File.getFileSize(path+'LandShare.json') > 2){
 			LandShareFile = path+'LandShare.json';
@@ -69,6 +75,7 @@ function onEnable(){
 		}else{
 			LandShareDataNotEmpty = false;
 			LandShareFile = path+'LandShare.json';
+			LandShareData = {};
 		}
 	}
 	shareModeCase = {};
@@ -99,7 +106,7 @@ function onPlayerCMD(Player,getCMD){
 				return false;
 			}
 			if(getCMDArray[1] == '帮助'){
-				let message = '§2领地石帮助列表:\n/领地石 §f添加共享 共享玩家名称\n§2/领地石 §f删除共享 共享玩家名称';
+				let message = '§2领地石帮助列表:\n/领地石 §f添加共享 共享玩家名称\n§2/领地石 §f删除共享 共享玩家名称\n§2/领地石 §f领地校正';
 				Player.sendText(message,1);
 				return false;
 			}
