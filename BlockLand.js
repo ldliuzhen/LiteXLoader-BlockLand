@@ -117,9 +117,9 @@ function onPlayerCMD(Player,getCMD){
 					return false;
 				}
 				sendSharePlayerInfo[getPlayerName] = String(getCMDArray[2]);
+				shareModeCase[getPlayerName] = 1;
 				let message = '§e[领地石]§f共享开始,请在需要共享的领地上放置任意方块';
 				Player.sendText(message,1);
-				shareModeCase[getPlayerName] = 1;
 				return false;
 			}
 			if(getCMDArray[1] == '删除共享'){
@@ -129,9 +129,9 @@ function onPlayerCMD(Player,getCMD){
 					return false;
 				}
 				sendSharePlayerInfo[getPlayerName] = String(getCMDArray[2]);
-				let message = '§e[领地石]§f删除开始,请在需要解除共享的领地上放置任意方块!';
-				Player.sendText(message,1);		
 				shareModeCase[getPlayerName] = 2;
+				let message = '§e[领地石]§f删除开始,请在需要解除共享的领地上放置任意方块!';
+				Player.sendText(message,1);
 				return false;
 			}
 			if(getCMDArray[1] == '领地校正'){
@@ -205,7 +205,7 @@ function BlockEventJudgment(playerName,blockKey,position,playerInfo){
 						return true;
 					}else{
 						if(Value['是否共享'] == true){
-							if(LandShareData.hasOwnProperty(playerName) == true){
+							if(LandShareData[Key].hasOwnProperty(playerName) == true){
 								return true;
 							}
 						}							
@@ -224,8 +224,8 @@ function ShareInfoAddJudgment(playerName,playerInfo,Key,Value){
 		if(shareModeCase[playerName] == 1 && sendSharePlayerInfo[playerName] != undefined){
 			if(LandShareDataNotEmpty == false){
 				let sendSharePlayerInfoPlayerName = sendSharePlayerInfo[playerName];
-				let Temp = {sendSharePlayerInfoPlayerName:true};
-				LandShareData = {Key:Temp};
+				let Temp = {[sendSharePlayerInfoPlayerName]:true};
+				LandShareData[Key] = Temp;
 				LandShareData = data.toJson(LandShareData,2);//先转换为json
 				File.writeTo(LandShareFile,LandShareData);
 				LandShareData = data.parseJson(LandShareData);//写入完成后再转换为对象
@@ -243,11 +243,11 @@ function ShareInfoAddJudgment(playerName,playerInfo,Key,Value){
 				if(LandShareData.hasOwnProperty(Key) == true){
 					let Temp = LandShareData[Key];
 					let Temp2 = sendSharePlayerInfo[playerName];
-					Temp[Temp2] = true;
+					Temp[Temp2] = true;  //Temp[Temp2]表示在已有的对象中新增一个Temp2子键值
 					LandShareData[Key] = Temp;
 				}else{
 					let sendSharePlayerInfoPlayerName = sendSharePlayerInfo[playerName];
-					LandShareData[Key] = {sendSharePlayerInfoPlayerName:true};
+					LandShareData[Key] = {[sendSharePlayerInfoPlayerName]:true};//如果要把变量赋予在对象中需要加[]，否则会变成变量名称的字符串Key
 					let Temp = LandData[Key];
 					Temp['是否共享'] = true;
 					LandData[Key] = Temp;
@@ -258,12 +258,10 @@ function ShareInfoAddJudgment(playerName,playerInfo,Key,Value){
 				LandShareData = data.toJson(LandShareData,2);
 				File.writeTo(LandShareFile,LandShareData);
 				LandShareData = data.parseJson(LandShareData);
-				let message = '§e[领地石]§f共享成功!';
+				let message = '§e[领地石]§f共享成功!被共享玩家为'+sendSharePlayerInfo[playerName];
 				playerInfo.sendText(message,1);
 				shareModeCase[playerName] = 0;
 			}
-		}else{
-			shareModeCase[playerName] = 0;
 		}
 	}
 }
@@ -282,7 +280,7 @@ function ShareInfoDelJudgment(playerName,playerInfo,Key,Value){
 						let Temp2 = sendSharePlayerInfo[playerName];
 						delete Temp[Temp2];
 						LandShareData[Key] = Temp;
-						if(LandShareData[Key] != undefined){
+						if(LandShareData[Key] == undefined){
 							delete LandShareData[Key];
 						}
 						LandShareData = data.toJson(LandShareData,2);
@@ -302,6 +300,8 @@ function ShareInfoDelJudgment(playerName,playerInfo,Key,Value){
 					shareModeCase[playerName] = 0;
 				}
 			}
+		}else{
+			shareModeCase[playerName] = 0;
 		}
 	}
 }
@@ -415,7 +415,7 @@ function onBlockPlace(player,block){
 		};
 		if(LandDataNotEmpty == false){
 			if(getBlockID == ConfigData['领地石ID']){
-				LandData = {BlockKey:BlockInfo};
+				LandData = {[BlockKey]:BlockInfo};
 				LandData = data.toJson(LandData,2);
 				File.writeTo(LandFile,LandData);
 				LandData = data.parseJson(LandData);
